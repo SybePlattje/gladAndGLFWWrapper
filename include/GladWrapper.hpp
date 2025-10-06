@@ -10,6 +10,9 @@ class GladWrapper
     public:
         static bool sGWGLWFInnit();
         static bool sGWCreateWindow(GLFWwindow* window, int width, int height, const std::string& name);
+        static bool sGWCreateFullscreenWindow(GLFWwindow* window, const std::string& name);
+        static void sGWCleanupGLFW();
+        static void sGWCleanupWindow(GLFWwindow* window);
         static bool sGWInnit();
 };
 
