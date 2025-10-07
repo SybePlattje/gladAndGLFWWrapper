@@ -9,11 +9,11 @@ class GLContext
         GLContext(int major = 4, int minor = 1);
         ~GLContext();
 
-        static bool initGlad();
-        static void pollEvents();
-        static double getTime();
-        static GLFWerrorfun setErrorCallback(GLFWerrorfun callback);
-        static void terminate();
+        static bool sInitGlad();
+        static void sPollEvents();
+        static double sGetTime();
+        static GLFWerrorfun sSetErrorCallback(GLFWerrorfun callback);
+        static void sTerminate();
     private:
         bool initGlfw();
         void sanitizeVersions(int& major, int& minor);

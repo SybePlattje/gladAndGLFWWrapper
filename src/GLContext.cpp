@@ -1,11 +1,17 @@
-#include "externalLib/glad/include/glad/glad.h"
+#include <glad/glad.h>
 #include "GLContext.hpp"
 #include <stdexcept>
 #include <iostream>
 
+/**
+ * @param major the major version of glfw you want to use
+ * @param minor the minor version of glfw you want to use
+ * @brief initializes glfw and sets the glfw version to the one given after senitizing to make sure it works and is a valid version
+ * @exception runtime error if glfwInit failes
+ */
 GLContext::GLContext(int major, int minor)
 {
-    if (initGlfw())
+    if (!initGlfw())
         throw std::runtime_error("Failed to initialze glfw");
 
     sanitizeVersions(major, minor);
@@ -14,17 +20,27 @@ GLContext::GLContext(int major, int minor)
     glfwWindowHint(GLFW_VERSION_MINOR, minor);
 }
 
+/**
+ * @brief terminats glfw as cleanup
+ */
 GLContext::~GLContext()
 {
-    terminate();
+    sTerminate();
 }
 
-void GLContext::terminate()
+/**
+ * @brief terminates glfw
+ */
+void GLContext::sTerminate()
 {
     glfwTerminate();
 }
 
-bool GLContext::initGlad()
+/**
+ * @brief tries to load in all the glad function
+ * @return true if glad initializes correctly, false on gladLoadGLLoader error
+ */
+bool GLContext::sInitGlad()
 {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -40,6 +56,10 @@ bool GLContext::initGlad()
     return true;
 }
 
+/**
+ * @brief tries to initialize glfw
+ * @return ture if glfwInit succeeds, fails on glfwInit error and prints error message
+ */
 bool GLContext::initGlfw()
 {
     if (glfwInit())
@@ -48,28 +68,45 @@ bool GLContext::initGlfw()
     const char* errorDescription = nullptr;
     glfwGetError(&errorDescription);
     if (errorDescription)
-        std::cerr << "[GLFW] Initialization failed: " << errorDescription << std::endl;
+        std::cerr << "[GLFW] Initialization failed: " << errorDescription << "\n";
     else
-        std::cerr << "[GLFW] Initialization failed: Unknown error" << std::endl;
+        std::cerr << "[GLFW] Initialization failed: Unknown error" << "\n";
 
     return false;
 }
 
-void GLContext::pollEvents()
+/**
+ * @brief polls the events from the current window loop
+ */
+void GLContext::sPollEvents()
 {
     glfwPollEvents();
 }
 
-double GLContext::getTime()
+/**
+ * @brief gets the current time in seconds
+ * @return the time in seconds or 0 if an error has occurred
+ */
+double GLContext::sGetTime()
 {
     return glfwGetTime();
 }
 
-GLFWerrorfun GLContext::setErrorCallback(GLFWerrorfun callback)
+/**
+ * @param callback the callback function for handling errors
+ * @brief sets the given callback function to handle the errors
+ * @return the previous callback function or null if non was set
+ */
+GLFWerrorfun GLContext::sSetErrorCallback(GLFWerrorfun callback)
 {
     return glfwSetErrorCallback(callback);
 }
 
+/**
+ * @param major the major version of glfw to senitize
+ * @param minor the minor version of glfw to senitize
+ * @brief senitizes the version of glfw to the minimum of 3.3, or maximan of 4.6, or the heighest version that's installed on the machine
+ */
 void GLContext::sanitizeVersions(int& major, int& minor)
 {
     int glfwMajor, glfwMinor, glfwRev;

@@ -103,6 +103,15 @@ GLWindow::~GLWindow()
         glfwDestroyWindow(m_window);
 }
 
+bool GLWindow::operator==(const GLWindow& other) const
+{
+    if (m_fbHeight == other.m_fbHeight && m_fbWidth == other.m_fbWidth && m_height == other.m_height && m_title == other.m_title && m_width == other.m_width && m_window == other.m_window)
+    {
+        return true;
+    }
+    return false;
+}
+
 /**
  * @brief checks if the should close flag for the window is true
  * @return true if window should close, else false
@@ -110,6 +119,14 @@ GLWindow::~GLWindow()
 bool GLWindow::shoulClose() const
 {
     return glfwWindowShouldClose(m_window);
+}
+
+/**
+ * @brief sets the flag that the window should close to true
+ */
+void GLWindow::setWindowClose()
+{
+    glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 }
 
 /**
@@ -149,6 +166,7 @@ void GLWindow::setSize(int width, int height)
 
     glfwSetWindowSize(m_window, m_width, m_height);
     getFrameBuffer(&m_fbWidth, &m_fbHeight);
+    glViewport(0, 0, m_width, m_height);
 }
 
 /**
@@ -258,22 +276,3 @@ void GLWindow::getFrameBuffer(int* fbWidth, int* fbHeight)
     glfwGetFramebufferSize(m_window, fbWidth, fbHeight);
 }
 
-/**
- * @param data the data pointer you want to add to add to the window for functions to use later
- * @brief makes the data later available in the window for other functons to get
- */
-template <typename T>
-void GLWindow::setWindowPointer(T* data)
-{
-    glfwSetWindowUserPointer(m_window, static_cast<void*>(data));
-}
-
-/**
- * @return the datatype of the stored user pointer stored in window or NULL if non where set
- * @brief gets the window pointer the user added to the window
- */
-template <typename T>
-T* GLWindow::getWindowPointer()
-{
-    return static_cast<T*>(glfwGetWindowUserPointer(m_window));
-}
