@@ -25,6 +25,8 @@ template<> struct is_vec4<s_vec4> : std::true_type {};
 template<> struct is_mat4<s_mat4> : std::true_type {};
 template<> struct is_quat<s_quat> : std::true_type {};
 
+template<class> struct always_false : std::false_type {};
+
 class GLShader
 {
     public:
@@ -61,7 +63,7 @@ class GLShader
                 glUniform3f(location, value.x, value.y, value.z);
             else if constexpr (is_vec4<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
-            else if constexpr (is_mat4<T>::vlaue)
+            else if constexpr (is_mat4<T>::value)
                 glUniformMatrix4fv(location, 1, GL_FALSE, &value.m[0][0]);
             else if constexpr (is_quat<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
@@ -76,7 +78,5 @@ class GLShader
         GLint getUniformLocation(const std::string& name);
         bool checkCompileErrors(GLuint object, GLenum type, bool isProgram);
 };
-
-template<class> struct always_false : std::false_type {};
 
 #endif

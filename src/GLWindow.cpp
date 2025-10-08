@@ -103,15 +103,6 @@ GLWindow::~GLWindow()
         glfwDestroyWindow(m_window);
 }
 
-bool GLWindow::operator==(const GLWindow& other) const
-{
-    if (m_fbHeight == other.m_fbHeight && m_fbWidth == other.m_fbWidth && m_height == other.m_height && m_title == other.m_title && m_width == other.m_width && m_window == other.m_window)
-    {
-        return true;
-    }
-    return false;
-}
-
 /**
  * @brief checks if the should close flag for the window is true
  * @return true if window should close, else false

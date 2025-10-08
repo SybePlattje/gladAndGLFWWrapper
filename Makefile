@@ -10,7 +10,7 @@ CSOURCES = external/glad/src/glad.c
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CXXSOURCES))
 OBJECTS += $(OBJ_DIR)/glad.o
 DEPS = $(OBJECTS:.o=.d)
-INCLUDE = -Iinclude -IexternalLib/glad/include/
+INCLUDE = -Iinclude -IexternalLib/glad/include/ -IexternalLib
 
 ifdef DEBUG
 CXXFLAGS += -g3
