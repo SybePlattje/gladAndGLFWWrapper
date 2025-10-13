@@ -9,6 +9,7 @@ CSOURCES = ../external/glad/src/glad.c
 
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CXXSOURCES))
 OBJECTS += $(OBJ_DIR)/glad.o
+OBJECTS += $(OBJ_DIR)/main.o
 DEPS = $(OBJECTS:.o=.d)
 INCLUDE = -I../include -I../externalLib/glad/include/ -I../externalLib
 
@@ -26,6 +27,10 @@ $(NAME): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+
+$(OBJ_DIR)/main.o: main.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
