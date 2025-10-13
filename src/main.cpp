@@ -5,12 +5,9 @@
 #include "GLShader.hpp"
 #include "GLUtils.hpp"
 #include "GLMesh.hpp"
+#include "GLBuffer.hpp"
 #include <stdexcept>
 #include <iostream>
-
-#include <glm/glm.hpp>     // optional
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 int main()
 {
@@ -50,8 +47,21 @@ int main()
             0, 1, 2, 2, 3, 0
         };
 
+        GLBuffer vertexBuffer(GLBuffer::e_Type::Array);
+        if (!vertexBuffer.setData<float>(vertices))
+            return 1;
+
+        GLBuffer indexBuffer(GLBuffer::e_Type::Element);
+        if (!indexBuffer.setData<unsigned int>(indices))
+            return 1;
+
         GLMesh mesh;
-        mesh.setup(vertices, indices, 3, {3});
+
+        std::vector<s_VertexAttribute> attributes = {{0, 3, GL_FLOAT, GL_FALSE, 4, 3}};
+        if (!mesh.attachVertexBuffer(vertexBuffer, attributes))
+            return 1;
+
+        mesh.attachElementBuffer(indexBuffer);
 
         float brightness = 1.f;
         shader.setUniform<float>("uBrightness", brightness);

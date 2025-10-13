@@ -4,23 +4,22 @@
 
 GLMesh::GLMesh():
 m_vertexArrayObject(0),
-m_vertexBufferObject(0),
-m_elementBufferObject(0),
 m_vertexCount(0),
-m_indexCount(0),
-m_hasElementBufferObject(false)
-{}
+m_indexCount(0)
+{
+    glGenVertexArrays(1, &m_vertexArrayObject);
+    if (m_vertexArrayObject == 0)
+        throw std::runtime_error("failed to create vertex array object");
+}
 
 GLMesh::GLMesh(GLMesh&& other):
 m_vertexArrayObject(other.m_vertexArrayObject),
-m_vertexBufferObject(other.m_vertexBufferObject),
-m_elementBufferObject(other.m_elementBufferObject),
-m_hasElementBufferObject(other.m_hasElementBufferObject)
+m_vertexCount(other.m_vertexCount),
+m_indexCount(other.m_indexCount)
 {
     other.m_vertexArrayObject = 0;
-    other.m_vertexBufferObject = 0;
-    other.m_elementBufferObject = 0;
-    other.m_hasElementBufferObject = false;
+    other.m_vertexCount = 0;
+    other.m_indexCount = 0;
 }
 
 GLMesh::~GLMesh()
@@ -35,82 +34,85 @@ GLMesh& GLMesh::operator=(GLMesh&& other)
         cleanup();
 
         m_vertexArrayObject = other.m_vertexArrayObject;
-        m_vertexBufferObject = other.m_vertexBufferObject;
-        m_elementBufferObject = other.m_elementBufferObject;
-        m_hasElementBufferObject = other.m_hasElementBufferObject;
+        m_vertexCount = other.m_vertexCount;
+        m_indexCount = other.m_indexCount;
 
         other.m_vertexArrayObject = 0;
-        other.m_vertexBufferObject = 0;
-        other.m_elementBufferObject = 0;
-        other.m_hasElementBufferObject = false;
+        other.m_vertexCount = 0;
+        other.m_indexCount = 0;
     }
 
     return *this;
 }
 
-bool GLMesh::setup(const std::vector<float>& vertices,
-    const std::vector<unsigned int>& indices,
-    int stride,
-    const std::vector<int>& attributeSizes)
+/**
+ * @attention attributes.offset and attributes.stride are assumed to hold there byte value
+ * 
+ */
+bool GLMesh::attachVertexBuffer(const GLBuffer& buffer, std::vector<s_VertexAttribute>& attributes)
 {
-    if (vertices.empty())
+    if (buffer.getType() != GLBuffer::e_Type::Array)
     {
-        std::cerr << "vertices vector is empty" << std::endl;
+        std::cerr << "AttachVertexBuffer: buffer is not a vertex array buffer" << std::endl;
         return false;
     }
 
-    cleanup();
-
-    glGenVertexArrays(1, &m_vertexArrayObject);
-    glGenBuffers(1, &m_vertexBufferObject);
-    if (0 == m_vertexArrayObject || 0 == m_vertexBufferObject)
+    if (attributes.empty())
     {
-        std::cerr << "Error: failed to create vertex array object or vertex buffer object" << std::endl;
+        std::cerr << "AttachVertexBuffer: attributes vector is empty" << std::endl;
         return false;
     }
 
-    glBindVertexArray(m_vertexArrayObject);
+    bind();
+    buffer.bind();
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    GLsizei strideBytes = 0;
 
-    m_hasElementBufferObject = !indices.empty();
-    if (m_hasElementBufferObject)
+    for (const s_VertexAttribute& att : attributes)
     {
-        glGenBuffers(1, &m_elementBufferObject);
-        if (0 == m_elementBufferObject)
-        {
-            std::cerr << "failed to generate element buffer object" << std::endl;
-            return false;
-        }
+        glEnableVertexAttribArray(att.index);
+        glVertexAttribPointer(att.index, att.size, att.type, att.normalized, att.stride, reinterpret_cast<const void*>(att.offset));
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementBufferObject);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-        m_indexCount = static_cast<GLsizei>(indices.size());
-        m_hasElementBufferObject = true;
+        if (strideBytes < att.stride)
+            strideBytes = att.stride;
     }
+
+    std::size_t typeSize = getTypeSize(attributes[0].type);
+    if (0 == typeSize)
+    {
+        std::cerr << "AttachVertexBuffer: unkown attachment type" << std::endl;
+        unbind();
+        return false;
+    }
+
+    if (typeSize > static_cast<std::size_t>(strideBytes))
+    {
+        std::cout << "resized strideByte(" << strideBytes << ") because it was smaller then typeSize(" << typeSize << ")" << std::endl;
+        strideBytes = static_cast<GLsizei>(typeSize);
+    }
+
+    if (0 < strideBytes)
+        m_vertexCount = static_cast<GLsizei>(buffer.getCount() / (strideBytes / typeSize));
     else
-        m_indexCount = 0;
+        m_vertexCount = 0;
 
-    int offset = 0;
-    for (size_t i = 0; attributeSizes.size() >= i; ++i)
+    unbind();
+
+    return true;
+}
+
+bool GLMesh::attachElementBuffer(const GLBuffer& buffer)
+{
+    if (buffer.getType() != GLBuffer::e_Type::Element)
     {
-        glEnableVertexAttribArray(static_cast<GLuint>(i));
-        glVertexAttribPointer(static_cast<GLuint>(i),
-        attributeSizes[i],
-        GL_FLOAT,
-        GL_FALSE,
-        stride * sizeof(float),
-    reinterpret_cast<void*>(offset * sizeof(float)));
-    offset += attributeSizes[i];
+        std::cerr << "attachElementBuffer: buffer is not a element array buffer" << std::endl;
+        return false;
     }
-    
-    glEnableVertexAttribArray(0);
 
-    m_vertexCount = static_cast<GLsizei>(vertices.size());
-
-    glBindVertexArray(0);
-
+    bind();
+    buffer.bind();
+    m_indexCount = buffer.getCount();
+    unbind();
     return true;
 }
 
@@ -124,15 +126,21 @@ void GLMesh::unbind() const
     glBindVertexArray(0);
 }
 
-void GLMesh::draw(GLenum mode) const
+void GLMesh::draw(GLenum mode, GLsizei count, GLenum indexType) const
 {
     bind();
-
-    if (m_hasElementBufferObject)
-        glDrawElements(mode, m_indexCount, GL_UNSIGNED_INT, nullptr);
-    else
-        glDrawArrays(mode, 0, m_vertexCount);
-
+    if (0 < m_indexCount)
+    {
+        GLsizei finalCount = (0 == count) ? m_indexCount : count;
+        if (0 < finalCount)
+            glDrawElements(mode, finalCount, indexType, nullptr);
+    }
+    else if (0 < m_vertexCount)
+    {
+        GLsizei finalCount = (0 == count) ? m_vertexCount : count;
+        if (0 < finalCount)
+            glDrawArrays(mode, 0, finalCount);
+    }
     unbind();
 }
 
@@ -141,34 +149,36 @@ GLuint GLMesh::getVertextArrayObject() const
     return m_vertexArrayObject;
 }
 
-GLuint GLMesh::getVertextBufferObject() const
-{
-    return m_vertexBufferObject;
-}
-
-GLuint GLMesh::getElementBufferObject() const
-{
-    return m_elementBufferObject;
-}
-
 void GLMesh::cleanup()
 {
-    if (m_elementBufferObject)
-    {
-        glDeleteBuffers(1, &m_elementBufferObject);
-        m_elementBufferObject = 0;
-    }
-    if (m_vertexBufferObject)
-    {
-        glDeleteBuffers(1, &m_vertexBufferObject);
-        m_vertexBufferObject = 0;
-    }
     if (m_vertexArrayObject)
     {
         glDeleteVertexArrays(1, &m_vertexArrayObject);
         m_vertexArrayObject = 0;
     }
-    m_vertexCount = 0;
-    m_indexCount = 0;
-    m_hasElementBufferObject = false;
+}
+
+std::size_t GLMesh::getTypeSize(GLenum type)
+{
+    switch (type)
+    {
+    case GL_FLOAT:
+        return sizeof(float);
+    case GL_UNSIGNED_INT:
+        return sizeof(unsigned int);
+    case GL_INT:
+        return sizeof(int);
+    case GL_BYTE:
+        return sizeof(char);
+    case GL_UNSIGNED_BYTE:
+        return sizeof(unsigned char);
+    case GL_SHORT:
+        return sizeof(short);
+    case (GL_UNSIGNED_SHORT):
+        return sizeof(unsigned short);
+    case GL_DOUBLE:
+        return sizeof(double);
+    default:
+        return 0;
+    }
 }

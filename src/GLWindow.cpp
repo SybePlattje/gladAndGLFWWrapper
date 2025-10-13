@@ -14,7 +14,7 @@
 GLWindow::GLWindow(int width, int height, const std::string& title):
 m_title(title)
 {
-    if ( 0 >= width || 0 >= height)
+    if ( 0 > width || 0 > height)
         throw std::runtime_error("Width and height should both be greater then 0");
 
     m_width = width;
@@ -146,7 +146,7 @@ void GLWindow::setTitle(const std::string& title)
  */
 void GLWindow::setSize(int width, int height)
 {
-    if (0 >= width || 0 >= height)
+    if (0 > width || 0 > height)
     {
         std::cerr << "width and height can't be less then 0" << std::endl;
         return;

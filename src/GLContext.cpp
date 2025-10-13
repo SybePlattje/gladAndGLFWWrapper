@@ -130,10 +130,4 @@ void GLContext::sanitizeVersions(int& major, int& minor)
     }
     else if ( glfwMajor == major && glfwMinor < minor)
         minor = glfwMinor;
-    
-    if (0 >= major)
-    {
-        major = 3;
-        minor = 3;
-    }
 }
