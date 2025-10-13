@@ -2,15 +2,15 @@ NAME = LIB
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -MMD -MP -std=c++23
 LFLAGS = -lglfw -ldl -lpthread -lGL -lm
-SRC_DIR = ./src
+SRC_DIR = ./../src
 OBJ_DIR = ./obj
 CXXSOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-CSOURCES = external/glad/src/glad.c
+CSOURCES = ../external/glad/src/glad.c
 
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CXXSOURCES))
 OBJECTS += $(OBJ_DIR)/glad.o
 DEPS = $(OBJECTS:.o=.d)
-INCLUDE = -Iinclude -IexternalLib/glad/include/ -IexternalLib
+INCLUDE = -I../include -I../externalLib/glad/include/ -I../externalLib
 
 ifdef DEBUG
 CXXFLAGS += -g3
@@ -29,7 +29,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
-$(OBJ_DIR)/glad.o: externalLib/glad/src/glad.c
+$(OBJ_DIR)/glad.o: ../externalLib/glad/src/glad.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
