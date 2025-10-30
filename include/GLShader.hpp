@@ -11,7 +11,7 @@ struct s_vec2 { float x, y; };
 struct s_vec3 { float x, y, z; };
 struct s_vec4 { float x, y, z, w; };
 struct s_mat4 { float m[4][4]; };
-struct s_quat { float x, y, z, w; };
+struct s_quat { float w, x, y, z; };
 
 template<typename T> struct is_vec2 : std::false_type {};
 template<typename T> struct is_vec3 : std::false_type {};
@@ -30,9 +30,10 @@ template<class> struct always_false : std::false_type {};
 class GLShader
 {
     public:
-        GLShader(const std::string& vertexSource, const std::string& fragmentSource);
+        GLShader();
         ~GLShader();
 
+        bool setup(const std::string& vertexFilePath, const std::string& fragmentFilePath);
         void bind() const;
         void unbind() const;
         GLuint getProgramId() const;
@@ -64,7 +65,7 @@ class GLShader
             else if constexpr (is_vec4<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else if constexpr (is_mat4<T>::value)
-                glUniformMatrix4fv(location, 1, GL_FALSE, &value.m[0][0]);
+                glUniformMatrix4fv(location, 1, GL_TRUE, &value.m[0][0]);
             else if constexpr (is_quat<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else

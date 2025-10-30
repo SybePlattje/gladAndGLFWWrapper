@@ -7,7 +7,7 @@
  * @param major the major version of glfw you want to use
  * @param minor the minor version of glfw you want to use
  * @brief initializes glfw and sets the glfw version to the one given after senitizing to make sure it works and is a valid version
- * @exception runtime error if glfwInit failes
+ * @exception runtime error if glfwInit fails
  */
 GLContext::GLContext(int major, int minor)
 {
@@ -81,6 +81,14 @@ bool GLContext::initGlfw()
 void GLContext::sPollEvents()
 {
     glfwPollEvents();
+}
+
+/**
+ * @brief waits until events are queued and processes them, this puts the calling thread to sleep until at least one or more events are available
+ */
+void GLContext::sWaitEvents()
+{
+    glfwWaitEvents();
 }
 
 /**
