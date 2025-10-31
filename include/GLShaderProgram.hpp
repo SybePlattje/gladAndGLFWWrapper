@@ -1,47 +1,32 @@
-#ifndef GLSHADER_HPP
-# define GLSHADER_HPP
+#ifndef GLSHADERPROGRAM_HPP
+# define GLSHADERPROGRAM_HPP
 
 # include <string>
 # include <glad/glad.h>
 # include <type_traits>
 # include <unordered_map>
 # include <vector>
+# include "GLStructs.hpp"
+# include "GLShaderFile.hpp"
 
-struct s_vec2 { float x, y; };
-struct s_vec3 { float x, y, z; };
-struct s_vec4 { float x, y, z, w; };
-struct s_mat4 { float m[4][4]; };
-struct s_quat { float w, x, y, z; };
-
-template<typename T> struct is_vec2 : std::false_type {};
-template<typename T> struct is_vec3 : std::false_type {};
-template<typename T> struct is_vec4 : std::false_type {};
-template<typename T> struct is_mat4 : std::false_type {};
-template<typename T> struct is_quat : std::false_type {};
-
-template<> struct is_vec2<s_vec2> : std::true_type {};
-template<> struct is_vec3<s_vec3> : std::true_type {};
-template<> struct is_vec4<s_vec4> : std::true_type {};
-template<> struct is_mat4<s_mat4> : std::true_type {};
-template<> struct is_quat<s_quat> : std::true_type {};
-
-template<class> struct always_false : std::false_type {};
-
-class GLShader
+class GLShaderProgram
 {
     public:
-        GLShader();
-        ~GLShader();
+        GLShaderProgram();
+        ~GLShaderProgram();
 
-        bool setup(const std::string& vertexFilePath, const std::string& fragmentFilePath);
-        void bind() const;
-        void unbind() const;
-        GLuint getProgramId() const;
-        GLuint compileShader(GLenum type, const std::string& source);
+        GLShaderProgram(const GLShaderProgram& other);
+        GLShaderProgram& operator=(const GLShaderProgram& other);
+
+        GLShaderProgram(GLShaderProgram&& other);
+        GLShaderProgram& operator=(GLShaderProgram&& other);
+
+        bool setup();
+        void bind();
+        void unbind();
+        GLuint getProgram() const;
+        void attachShader(std::vector<GLShaderFile>& shader);
         bool linkProgram();
-        void attachShader(GLuint shader);
-        
-        static std::string sShaderTypeToString(GLenum type);
 
         /**
          * @param name the name of the uniform
@@ -50,9 +35,11 @@ class GLShader
          * @warning static_assert will check if passed values are support
          */
         template<typename T>
-        void setUniform(const std::string& name, const T& value)
+        bool setUniform(const std::string& name, const T& value)
         {
             GLint location = getUniformLocation(name);
+            if (location == -1)
+                return false;
 
             if constexpr (std::is_same_v<T, int>)
                 glUniform1i(location, value);
@@ -70,14 +57,14 @@ class GLShader
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else
                 static_assert(always_false<T>::value, "Unsupported uniform type");
+            return true;
         }
     private:
         GLuint m_program;
         std::unordered_map<std::string, GLint> m_uniformCache;
-        std::vector<GLuint> m_shaders;
 
         GLint getUniformLocation(const std::string& name);
-        bool checkCompileErrors(GLuint object, GLenum type, bool isProgram);
+        bool checkCompileErrors();
 };
 
 #endif

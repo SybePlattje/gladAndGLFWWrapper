@@ -4,7 +4,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <vector>
-#include "GLShader.hpp"
+#include "GLStructs.hpp"
 
 class GLTexture
 {

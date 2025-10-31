@@ -2,7 +2,8 @@
 #include "GLContext.hpp"
 #include "GLWindow.hpp"
 #include "GLTexture.hpp"
-#include "GLShader.hpp"
+#include "GLShaderFile.hpp"
+#include "GLShaderProgram.hpp"
 #include "GLUtils.hpp"
 #include "GLMesh.hpp"
 #include "GLBuffer.hpp"
@@ -22,20 +23,30 @@ int main()
             return 1;
         }
 
-        GLTexture tex("unicorns.jpeg");
+        GLTexture tex;
+        tex.setup("unicorns.jpeg");
         tex.bind();
         tex.unbind();
         std::cout << "texture id [" << tex.getTextureId() << "]" << std::endl;
 
-        std::vector<unsigned char> vertexSource;
-        std::vector<unsigned char> fragmentSource;
-        if (!GLUtils::sReadShaderFile("basic.vert", vertexSource))
-            return 1;
-        if (!GLUtils::sReadShaderFile("basic.frag", fragmentSource))
+        GLShaderFile vertexShader;
+        if (!vertexShader.setup("basic.vert", GL_VERTEX_SHADER))
             return 1;
 
-        GLShader shader(reinterpret_cast<char*>(vertexSource.data()), reinterpret_cast<char*>(fragmentSource.data()));
-        shader.bind();
+        GLShaderFile fragmentShader;
+        if (!fragmentShader.setup("basic.frag", GL_FRAGMENT_SHADER))
+            return 1;
+
+        GLShaderProgram shaderProgram;
+        if (!shaderProgram.setup())
+            return 1;
+
+        std::vector<GLShaderFile> shaders;
+        shaders.emplace_back(std::move(vertexShader));
+        shaders.emplace_back(std::move(fragmentShader));
+        shaderProgram.attachShader(shaders);
+        if (!shaderProgram.linkProgram())
+            return 1;
 
         std::vector<float> vertices = {
             -1.f, -1.f, 0.f,
@@ -48,14 +59,18 @@ int main()
         };
 
         GLBuffer vertexBuffer(GLBuffer::e_Type::Array);
+        vertexBuffer.setup();
         if (!vertexBuffer.setData<float>(vertices))
             return 1;
 
         GLBuffer indexBuffer(GLBuffer::e_Type::Element);
+        indexBuffer.setup();
         if (!indexBuffer.setData<unsigned int>(indices))
             return 1;
 
         GLMesh mesh;
+        if (!mesh.setup())
+            return 1;
 
         std::vector<s_VertexAttribute> attributes = {{0, 3, GL_FLOAT, GL_FALSE, 4, 3}};
         if (!mesh.attachVertexBuffer(vertexBuffer, attributes))
@@ -64,7 +79,7 @@ int main()
         mesh.attachElementBuffer(indexBuffer);
 
         float brightness = 1.f;
-        shader.setUniform<float>("uBrightness", brightness);
+        
         s_mat4 transform = {
            {
             {1.f, 0.f, 0.f, 0.f},
@@ -73,7 +88,6 @@ int main()
             {0.f, 0.f, 0.f, 1.f}
            } 
         };
-        shader.setUniform<s_mat4>("uTransform", transform);
 
         double start = GLContext::sGetTime();
         while (!window.shoulClose())
@@ -90,10 +104,13 @@ int main()
                 window.setTitle("changed");
             }
 
-            shader.bind();
-            mesh.bind();
-            mesh.draw();
-            mesh.unbind();
+            shaderProgram.bind();
+            if (!shaderProgram.setUniform<float>("uBrightness", brightness))
+                window.setWindowClose();
+            if (!shaderProgram.setUniform<s_mat4>("uTransform", transform))
+                window.setWindowClose();
+
+            mesh.draw(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT);
             window.swapBuffers();
         }
         GLContext::sTerminate();
