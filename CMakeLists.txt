@@ -20,12 +20,20 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/externalLib
 )
 
-file(GLOB_RECURSE SOURCES
-    src/*.cpp
+file( SOURCES
+    src/GLBuffer.cpp
+    src/GLContext.cpp
+    src/GLDebug.cpp
+    src/GLMesh.cpp
+    src/GLShaderFile.cpp
+    src/GLShaderProgram.cpp
+    src/GLTexture.cpp
+    stc/GLTimer.cpp
+    src/GLutils.cpp
     externalLib/glad/src/glad.c
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
@@ -34,3 +42,8 @@ if (UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE X11 pthread dl m)
 endif()
 
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/externalLib/glad/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/externalLib
+)
