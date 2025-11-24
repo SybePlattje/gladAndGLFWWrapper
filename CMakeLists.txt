@@ -21,16 +21,16 @@ include_directories(
 )
 
 file( SOURCES
-    src/GLBuffer.cpp
-    src/GLContext.cpp
-    src/GLDebug.cpp
-    src/GLMesh.cpp
-    src/GLShaderFile.cpp
-    src/GLShaderProgram.cpp
-    src/GLTexture.cpp
-    stc/GLTimer.cpp
-    src/GLutils.cpp
-    externalLib/glad/src/glad.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLContext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLDebug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLMesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLShaderFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLShaderProgram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLTexture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stc/GLTimer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GLutils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/externalLib/glad/src/glad.c
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
