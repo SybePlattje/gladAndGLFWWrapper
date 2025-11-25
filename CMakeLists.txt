@@ -27,6 +27,7 @@ set( SOURCES
     src/GLTexture.cpp
     src/GLTimer.cpp
     src/GLUtils.cpp
+    src/GLWindow.cpp
     externalLib/glad/src/glad.c
 )
 
