@@ -40,6 +40,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 if (UNIX AND NOT APPLE)
     find_package(X11 REQUIRED)
