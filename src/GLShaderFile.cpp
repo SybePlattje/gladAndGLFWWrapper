@@ -4,15 +4,33 @@
 #include <cstring>
 #include <vector>
 
+/**
+ * @brief Construct a new GLShaderFile object
+ * 
+ */
 GLShaderFile::GLShaderFile(): m_id(0), m_type(0), m_source() {}
 
+/**
+ * @brief Construct a new GLShaderFile object
+ * 
+ * @param type what kind of shader it is
+ */
 GLShaderFile::GLShaderFile(GLenum type): m_id(0), m_type(type), m_source() {}
 
+/**
+ * @brief Destroy the GLShaderFile object
+ * 
+ */
 GLShaderFile::~GLShaderFile()
 {
     glDeleteShader(m_id);
 }
 
+/**
+ * @brief moves data from one GLShaderFile object to another and takes onership of the data
+ * 
+ * @param other the object of which we will take ownership
+ */
 GLShaderFile::GLShaderFile(GLShaderFile&& other):
 m_id(other.m_id),
 m_type(other.m_type),
@@ -23,6 +41,12 @@ m_source(other.m_source)
     other.m_source.clear();
 }
 
+/**
+ * @brief moves data from one GLShaderFile object to another and takes onership of the data
+ * 
+ * @param other the object of which we will take ownership
+ * @return a GLShaderFile object with the data from the object given and its data
+ */
 GLShaderFile& GLShaderFile::operator=(GLShaderFile&& other)
 {
     glDeleteShader(m_id);
@@ -39,6 +63,14 @@ GLShaderFile& GLShaderFile::operator=(GLShaderFile&& other)
     return *this;
 }
 
+/**
+ * @brief initializes the values for the shader file
+ * 
+ * @param filePath the path to the file
+ * @param type what type of shader it will be
+ * @return true if setup succeeds
+ * @return false if reading the file or compiling shader fails
+ */
 bool GLShaderFile::setup(const std::string& filePath, GLenum type)
 {
     m_type = type;
@@ -57,21 +89,42 @@ bool GLShaderFile::setup(const std::string& filePath, GLenum type)
     return true;
 }
 
+/**
+ * @brief gives the id of the shaderFile
+ * 
+ * @return the id of the shader
+ */
 GLuint GLShaderFile::getId() const
 {
     return m_id;
 }
 
+/**
+ * @brief gives the shader type
+ * 
+ * @return the shader type
+ */
 GLenum GLShaderFile::getType() const
 {
     return m_type;
 }
 
+/**
+ * @brief gives the data from the file itself
+ * 
+ * @return the source code from the shader
+ */
 std::string GLShaderFile::getSource() const
 {
     return m_source;
 }
 
+/**
+ * @brief creates the shader basesd on the shader type, sets its source and compilse it
+ * 
+ * @return true if shader compiling is successfull
+ * @return false if there are compile errors
+ */
 bool GLShaderFile::compileShader()
 {
     const char* src = m_source.data();
@@ -85,6 +138,12 @@ bool GLShaderFile::compileShader()
     return true;
 }
 
+/**
+ * @brief checks it there are errors when the shader was compiled
+ * 
+ * @return true if no errors are found
+ * @return false if the shader has comile errors
+ */
 bool GLShaderFile::checkShaderErrors()
 {
     GLint success = 0;
@@ -94,12 +153,19 @@ bool GLShaderFile::checkShaderErrors()
     if (!success)
     {
         glGetShaderInfoLog(m_id, 512, nullptr, buffer);
-        std::cerr << "❌ SHADER_COMPILATION_ERROR of type: " << shaderTypeToString() << "\n" << buffer << std::endl;
+        std::cerr << "SHADER_COMPILATION_ERROR of type: " << shaderTypeToString() << "\n" << buffer << std::endl;
         return false;
     }
     return true;
 }
 
+/**
+ * @brief reads the source data from the file and stores it for later use
+ * 
+ * @param path the path to the location of the shader file
+ * @return true if all data from the shader file could be read
+ * @return false  if the file could not be found, or on read errors
+ */
 bool GLShaderFile::readShaderFile(const std::string& path)
 {
     std::ifstream fstream(path, std::ios::binary | std::ios::ate);
@@ -126,6 +192,11 @@ bool GLShaderFile::readShaderFile(const std::string& path)
     return true;
 }
 
+/**
+ * @brief converts the GLenum shader type to string
+ * 
+ * @return the string veriant of the shader type
+ */
 std::string GLShaderFile::shaderTypeToString()
 {
      switch (m_type)
