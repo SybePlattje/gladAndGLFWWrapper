@@ -5,3 +5,4 @@ stb_image is used for image file loading in the textures.
 
 **Currently this is still a wrapper project in the making and will be expended in the future**
 ## Current project I own that use this wrapper
+[scop](https://github.com/SybePlattje/scop.git)
