@@ -43,7 +43,7 @@ class GLShaderProgram
 
             if constexpr (std::is_same_v<T, int>)
                 glUniform1i(location, value);
-            else if constexpr (std::is_save_v<T, unsigned int>)
+            else if constexpr (std::is_same_v<T, unsigned int>)
                 glUniform1ui(location, value);
             else if constexpr (std::is_same_v<T , float>)
                 glUniform1f(location, value);
