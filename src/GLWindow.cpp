@@ -42,8 +42,8 @@ m_title(title)
     if (!mode)
         throw std::runtime_error("Failed to get monitor infor");
 
-    int xpos = (mode->width - width);
-    int ypos = (mode->height - height);
+    int xpos = (mode->width / 2 - width / 2);
+    int ypos = (mode->height / 2 - height / 2);
     glfwSetWindowPos(m_window, xpos, ypos);
 
     setWindowPointer(this);

@@ -1,6 +1,6 @@
 NAME = LIB
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -MMD -MP -std=c++23
+CXXFLAGS = -MMD -MP -std=c++20
 LFLAGS = -lglfw -ldl -lpthread -lGL -lm
 SRC_DIR = ./../src
 OBJ_DIR = ./obj
