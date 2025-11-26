@@ -63,7 +63,7 @@ class GLShaderProgram
                     if constexpr (std::is_same_v<T, s_mat4>)
                         glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
                     else
-                        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value))
+                        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
                 #else
                     glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
                 #endif
