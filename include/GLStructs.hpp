@@ -55,7 +55,7 @@ template<> struct is_quat<s_quat> : std::true_type {};
     template<glm::qualifier Q>
     struct is_mat4<glm::mat<4, 4, float, Q>> : std::true_type {};
     template<glm::qualifier Q>
-    struct is_quat<glm::quat<float, Q>> : std::true_type {};
+    struct is_quat<glm::qua<float, Q>> : std::true_type {};
 
 #endif
 
