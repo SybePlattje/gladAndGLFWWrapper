@@ -44,12 +44,8 @@ template<> struct is_vec4<s_vec4> : std::true_type {};
 template<> struct is_mat4<s_mat4> : std::true_type {};
 template<> struct is_quat<s_quat> : std::true_type {};
 
-#ifdef GLM_VERSION
-    #include <glm/vec2.hpp>
-    #include <glm/vec3.hpp>
-    #include <glm/vec4.hpp>
-    #include <glm/mat4x4.hpp>
-    #include <glm/gtc/quaternation.hpp>
+#ifdef GLM_VERSION_MAJOR
+    #include <glm/gml.hpp>
 
     template<> struct is_vec2<glm::vec2> : std::true_type {};
     template<> struct is_vec3<glm::vec2> : std::true_type {};
