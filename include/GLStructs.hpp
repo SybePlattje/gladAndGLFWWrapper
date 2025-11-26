@@ -45,7 +45,7 @@ template<> struct is_mat4<s_mat4> : std::true_type {};
 template<> struct is_quat<s_quat> : std::true_type {};
 
 #ifdef GLM_VERSION_MAJOR
-    #include <glm/gml.hpp>
+    #include <glm/glm.hpp>
     #include <glm/gtc/matrix_transform.hpp>
     #include <glm/gtc/type_ptr.hpp>
 
@@ -53,8 +53,9 @@ template<> struct is_quat<s_quat> : std::true_type {};
     template<> struct is_vec3<glm::vec3> : std::true_type {};
     template<> struct is_vec4<glm::vec4> : std::true_type {};
     template<glm::qualifier Q>
-    template<> struct is_mat4<glm::mat<4, 4, float, Q>> : std::true_type {};
-    template<> struct is_quat<glm::quat> : std::true_type {};
+    struct is_mat4<glm::mat<4, 4, float, Q>> : std::true_type {};
+    template<glm::qualifier Q>
+    struct is_quat<glm::quat<float, Q>> : std::true_type {};
 
 #endif
 

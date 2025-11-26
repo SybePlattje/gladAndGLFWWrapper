@@ -54,7 +54,7 @@ class GLShaderProgram
             else if constexpr (is_vec4<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else if constexpr (is_mat4<T>::value)
-                glUniformMatrix4fv(location, 1, GL_TRUE, &value.m[0][0]);
+                glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
             else if constexpr (is_quat<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else
