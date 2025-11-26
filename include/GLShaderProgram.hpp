@@ -9,6 +9,10 @@
 # include "GLStructs.hpp"
 # include "GLShaderFile.hpp"
 
+# if __has_include(<glm/glm.hpp>)
+#  include <glm/gtc/type_ptr.hpp>
+# endif
+
 class GLShaderProgram
 {
     public:
@@ -54,7 +58,12 @@ class GLShaderProgram
             else if constexpr (is_vec4<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else if constexpr (is_mat4<T>::value)
-                glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
+            {
+                if constexpr (std:is_same_v<T, s_mat4>)
+                    glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
+                else
+                    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value))
+            }
             else if constexpr (is_quat<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else
