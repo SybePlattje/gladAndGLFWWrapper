@@ -26,6 +26,7 @@ class GLWindow
         GLFWkeyfun setKeyCallback(GLFWkeyfun callback);
         GLFWcursorposfun setCursorCallback(GLFWcursorposfun callback);
         void captureMouse();
+        void releaseMouse();
 
         void setClearColor(float red, float green, float blue, float alpha);
         void clear(bool color = true, bool depth = true) const;

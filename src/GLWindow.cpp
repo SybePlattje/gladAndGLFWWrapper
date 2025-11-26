@@ -186,6 +186,11 @@ const GLFWwindow* GLWindow::getGLFWWindow() const
  */
 void GLWindow::captureMouse()
 {
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void GLWindow::releaseMouse()
+{
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
