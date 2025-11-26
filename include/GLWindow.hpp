@@ -20,6 +20,7 @@ class GLWindow
         void setTitle(const std::string& title);
         void setSize(int width, int height);
         void getSize(int& width, int& height) const;
+        const GLFWwindow* getGLFWWindow() const;
 
         bool isKeyPressed(int key) const;
         GLFWkeyfun setKeyCallback(GLFWkeyfun callback);

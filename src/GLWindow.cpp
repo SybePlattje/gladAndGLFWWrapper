@@ -171,6 +171,16 @@ void GLWindow::getSize(int& width, int& height) const
 }
 
 /**
+ * @brief gives the current window pointer;
+ * 
+ * @return a const GLWFwindow pointer 
+ */
+const GLFWwindow* GLWindow::getGLFWWindow() const
+{
+    return m_window;
+}
+
+/**
  * @param key the key that is checked if pressed
  * @return true if the key is currently pressed, false if not
  * @brief checks if the state of the key is GLFW_PRESS
