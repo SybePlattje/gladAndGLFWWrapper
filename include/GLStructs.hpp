@@ -52,7 +52,8 @@ template<> struct is_quat<s_quat> : std::true_type {};
     template<> struct is_vec2<glm::vec2> : std::true_type {};
     template<> struct is_vec3<glm::vec3> : std::true_type {};
     template<> struct is_vec4<glm::vec4> : std::true_type {};
-    template<> struct is_mat4<glm::mat4> : std::true_type {};
+    template<glm::qualifier Q>
+    template<> struct is_mat4<glm::mat<4, 4, float, Q>> : std::true_type {};
     template<> struct is_quat<glm::quat> : std::true_type {};
 
 #endif
