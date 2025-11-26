@@ -181,6 +181,15 @@ const GLFWwindow* GLWindow::getGLFWWindow() const
 }
 
 /**
+ * @brief hides the system cursor and captures it in the window
+ * 
+ */
+void GLWindow::captureMouse()
+{
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+/**
  * @param key the key that is checked if pressed
  * @return true if the key is currently pressed, false if not
  * @brief checks if the state of the key is GLFW_PRESS
