@@ -59,10 +59,14 @@ class GLShaderProgram
                 glUniform4f(location, value.x, value.y, value.z, value.w);
             else if constexpr (is_mat4<T>::value)
             {
-                if constexpr (std:is_same_v<T, s_mat4>)
+                #if __has_include(<glm/glm.hpp>)
+                    if constexpr (std::is_same_v<T, s_mat4>)
+                        glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
+                    else
+                        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value))
+                #else
                     glUniformMatrix4fv(location, 1, GL_TRUE, &value(0, 0));
-                else
-                    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value))
+                #endif
             }
             else if constexpr (is_quat<T>::value)
                 glUniform4f(location, value.x, value.y, value.z, value.w);
